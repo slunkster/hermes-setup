@@ -1,0 +1,6 @@
+#!/bin/sh
+# Runs drive_file.py with the Hermes Python environment (Mac: hermes-agent/venv, VPS: newest PM venv).
+D=$(dirname "$0")
+P=~/.hermes/hermes-agent/venv/bin/python
+[ -x "$P" ] || P=$(ls -td ~/.hermes/installs/*/environments/*/venv 2>/dev/null | head -1)/bin/python
+exec "$P" -W ignore "$D/drive_file.py" "$@"

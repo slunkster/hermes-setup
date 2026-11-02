@@ -1,0 +1,15 @@
+*/15 * * * * /bin/sh /home/siim/hermes-skills/scripts/sync.sh >> /home/siim/hermes-skills/.sync.log 2>&1
+30 3 * * * /home/siim/bin/hermes-backup.sh >> /home/siim/Hermes/backups/backup.log 2>&1
+*/10 * * * * /home/siim/bin/hc-ping.sh
+
+Unattended-Upgrade::Automatic-Reboot "true";
+Unattended-Upgrade::Automatic-Reboot-WithUsers "true";
+Unattended-Upgrade::Automatic-Reboot-Time "04:30";
+[Timer]
+OnCalendar=
+OnCalendar=*-*-* 04:00
+RandomizedDelaySec=10m
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitRootLogin no
+PubkeyAuthentication yes

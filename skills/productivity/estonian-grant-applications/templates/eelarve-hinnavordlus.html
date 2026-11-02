@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="utf-8">
+<title>Eelarve ja hinnavõrdlus — [PROJEKTI NIMI]</title>
+<style>
+  @page { size: A4; margin: 13mm 12mm; }
+  body { font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif; font-size: 10pt; color: #111; line-height: 1.35; }
+  h1 { font-size: 16pt; margin: 0 0 2px 0; }
+  h2 { font-size: 12.5pt; border-bottom: 1.5px solid #888; padding-bottom: 2px; margin: 16px 0 6px 0; page-break-after: avoid; }
+  .sub { color: #444; font-size: 9.5pt; margin-bottom: 10px; }
+  table { border-collapse: collapse; width: 100%; margin: 6px 0 10px 0; }
+  th, td { border: 1px solid #b9b9b9; padding: 3.5px 5px; vertical-align: top; font-size: 9pt; }
+  th { background: #efefef; text-align: left; }
+  td.num, th.num { text-align: right; white-space: nowrap; }
+  .tot td { font-weight: bold; background: #f6f6f6; }
+  .note { background: #f7f7f7; border: 1px solid #ccc; padding: 7px 9px; font-size: 9pt; margin: 8px 0; }
+  .kiri { border: 1px solid #bbb; background: #fafafa; padding: 9px 11px; font-size: 9pt; white-space: pre-wrap; margin: 6px 0 12px 0; }
+  small { color: #555; }
+</style>
+</head>
+<body>
+
+<!-- TÄIDA: pealkiri, taotleja, taotlusvoor, projektinr, kuupäev, KM-lause -->
+<h1>[PROJEKTI NIMI] — eelarve ja hinnavõrdlus</h1>
+<div class="sub">Tööfail — [TAOTLEJA], [TAOTLUSVOOR], projekt [NR]. Koostatud: [KUUPÄEV]. Hinnad sisaldavad käibemaksu ([KM-staatuse lause]).</div>
+
+<div class="note"><b>Kuidas kasutada:</b> see on sinu sisemine tööfail (taotlusesse kopeeri tekstid eraldi taotlusfailist). Ametlikud kirjalikud hinnapäringud tuleb enne ostu saata ja pakkumused säilitada — all on selleks kiri (mall). Hoia kogusumma kuni <b>[LAGI / 0,9 = nt 4 444,44 €]</b> (siis 90 % = [lagi] € = meetme maksimum).</div>
+
+<h2>A. Projekti eelarve</h2>
+<table>
+<tr><th style="width:26px">#</th><th>Ese / kirjeldus</th><th style="width:70px">Kogus</th><th class="num" style="width:80px">Ühiku hind (EUR)</th><th class="num" style="width:80px">Summa (EUR)</th></tr>
+<!-- Korda üht rida iga eseme kohta. Viimane ehk „hinnanguline“ komplektirida neelab sendid, et KOKKU = lagi/0,9 TÄPSELT. -->
+<tr><td>1</td><td>[ESE]</td><td>1 tk</td><td class="num">0,00</td><td class="num">0,00</td></tr>
+<tr class="tot"><td colspan="4">KOKKU (abikõlblik kulu)</td><td class="num">[4 444,44]</td></tr>
+<tr class="tot"><td colspan="4">Taotletav toetus (90%)</td><td class="num">[4 000,00]</td></tr>
+<tr class="tot"><td colspan="4">Omafinantseering (10%, rahaline)</td><td class="num">[444,44]</td></tr>
+</table>
+
+<h2>B. Hinnavõrdlus (vähemalt kaks võrreldavat pakkumist)</h2>
+<table>
+<tr><th style="width:24px">#</th><th style="width:120px">Ese</th><th>Variant A</th><th>Variant B (alternatiiv)</th><th style="width:150px">Märkus / valik</th></tr>
+<tr><td>1</td><td>[ESE]</td><td>[toode, hind € (pood — allikas)]</td><td>[toode, hind € (pood)]</td><td>[valik + põhjus]</td></tr>
+</table>
+<small>[Allikad ja kuupäev: „hinnad on avalikud veebihinnad seisuga …“; need EI ole ametlikud pakkumused — ametlikud kirjalikud hinnapäringud hangi alloleva malliga.]</small>
+
+<h2>C. Metoodika ja märkused</h2>
+<ul>
+<li>Käibemaks: [taotleja KM-staatus]; KM jääb kulu tegija kanda ja on abikõlblik.</li>
+<li>Abikõlblikkuse periood: [algus–lõpp]; kulud tekkinud ja tasutud sel perioodil, taotleja arvelduskontolt; arved säilitada.</li>
+<li>Kogusumma hoidmine kuni [lagi/0,9] tagab toetuse [lagi] (90%); kui mõni pakkumus muutub, tõsta ridu ümber nii, et piir püsiks.</li>
+<li>Paigaldus ja ühistegevused vabatahtliku töö / igapäevatöö raames (eraldi kulusid eelarves ei ole).</li>
+<li>Mitteabikõlblik: [loetelu — vt määrus].</li>
+</ul>
+
+<h2>D. Hinnapäringu kiri (mall)</h2>
+<div class="kiri">Tere!
+
+[TAOTLEJA] (reg. nr [NR]) palub [PROJEKT] raames hinnapakkumist järgmistele toodetele:
+
+[LOETELU — nt mööbli loetelu ja tehnika loetelu eraldi kirjadena]
+
+Palume pakkumuses märkida:
+1) toote täpne nimetus/mudel ja mõõdud;
+2) ühiku- ja koguhind (koos käibemaksuga);
+3) tarneaeg ja -tingimused;
+4) garantii ja teenindus;
+5) pakkumuse kehtivusaeg.
+
+Pakkumuse palume saata e-postile [E-POST] hiljemalt [KUUPÄEV].
+
+Lugupidamisega
+[NIMI]
+[ORGANISATSIOON], [AMET]
+[TELEFON]</div>
+
+<small>Küsi pakkumus vähemalt kahelt mööbli- ja kahelt tehnikapakkujalt (nt Masku, LuigeMööbel, JYSK / Euronics, OnOff, Kaup24).</small>
+
+</body>
+</html>
