@@ -1,0 +1,26 @@
+name = "coop-balance"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+EB_APP_ID = "REPLACE-APP-ID"
+EB_ACCOUNT_UID = "REPLACE-ACCOUNT-UID"      # from POST /sessions -> accounts[0].uid
+CONSENT_UNTIL = "REPLACE-ISO-DATE"          # session access.valid_until
+
+[triggers]
+crons = ["0 6,10,14,18 * * *"]              # 4/day, UTC (~08-21 Estonia) = the unattended PSD2 budget
+
+[[rules]]
+type = "Text"
+globs = ["**/*.txt"]
+fallthrough = false
+
+[[rules]]
+type = "Data"
+globs = ["**/*.png"]
+fallthrough = false
+
+# after `npx wrangler kv namespace create BAL` add:
+# [[kv_namespaces]]
+# binding = "BAL"
+# id = "<namespace id>"

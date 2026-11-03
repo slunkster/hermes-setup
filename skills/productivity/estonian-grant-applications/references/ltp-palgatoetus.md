@@ -33,5 +33,5 @@ Kultuuriministri määrus 12.01.2021 nr 1 (no RT abbreviation — resolve the cu
 
 - One round a year, 1.–31. oktoober, for the next calendar year (§ 7 lg 2); no spring/extra round outside the one-off 2021/2022 transition sections.
 - Quarterly data confirmation by 31.03 / 30.06 / 30.09; changes reported within 5 tööpäeva; final report by 20. jaanuar with monthly payslip evidence; kollektiivijuhi pay must be separable in bookkeeping.
-- ERK: Kersti Sillaots (koordinaator) <phone> <contact-email>; Margit Salmar <phone>.
+- ERK: Kersti Sillaots (koordinaator) 5912 5045 <contact-email>; Margit Salmar 5884 0568.
 - Sources: rahvakultuur.ee/toetused/toetusmeetmed/ltp-liikumises-osalevate-kollektiivide-juhendajate-toojoukulu-toetus/ ; kooriyhing.ee/info/kollektiivijuhtide-palgameede-korduma-kippuvad-kusimused/

@@ -1,6 +1,6 @@
 ---
 name: hermes-vps-hosting
-description: "Use when hosting Hermes on a VPS or linking it to a Mac."
+description: "Use when hosting Hermes on a VPS or linking devices to it."
 version: 1.0.0
 author: Hermes Agent
 license: MIT
@@ -23,6 +23,16 @@ Reply in the language the user writes in (Estonian or English) and quote prices 
 - User wants a VPS-hosted Hermes to keep accessing their Mac (Apple apps, Obsidian, files).
 - User asks how to use one agent / one skill set across several machines.
 - User wants BOTH a full local Mac Hermes AND a 24/7 VPS Hermes (Telegram) — see "Two-instance setup" below.
+- User wants the setup extended to more devices (Windows PC, iPhone) — see "More devices" below.
+
+## More devices (Windows PC, iPhone)
+
+1. Check the current state before you propose anything: `tailscale status` (which devices are on the tailnet and online), `nc -zv -w3 <device-ts-ip> 22` (is there an SSH server yet), and the `~/.ssh/config` aliases.
+2. State the hard limits up front. iOS has no Hermes app and can't be controlled remotely, so the phone only sends requests in (chat, Siri/Shortcuts, Share). iCloud data still goes through the Mac.
+3. Ask with ONE clarify call: the PC's role (peripheral `ssh pc` / full local Hermes plus shared skills and Honcho / client only), the iPhone integrations (multi-select), and what on the PC the agent may use. This user picked a full local Hermes on the PC, Siri "Ask Hermes" on the phone, and programs, files and video projects on the PC.
+4. Get SSH access to the PC first, even when a full local Hermes is the goal. You can then do the install, the `.env` copy, the skills clone and `honcho.json` from the VPS yourself, so the user runs only one admin script.
+5. Recipes: the Windows OpenSSH bootstrap and the iPhone API server with the Siri Shortcut are in `references/more-devices.md`. For Siri, build on the polling Runs API from the start, because a blocking call times out on tool-using questions. Then follow "Skills across machines" and `references/shared-memory-honcho.md` for the PC.
+6. Hand secrets such as the API key over as a 600 file delivered via `MEDIA:`, not as text in chat. Chat text gets stored in session history and Honcho.
 
 ## Two-instance setup (local Mac Hermes + 24/7 VPS Hermes)
 
@@ -79,6 +89,15 @@ The Mac sits behind NAT; the VPS cannot reach it unaided. Recommended: **Tailsca
 
 Alternative without a third-party service: reverse tunnel — the Mac runs autossh `-R 127.0.0.1:2222:localhost:22` to the VPS (autossh + LaunchAgent with KeepAlive for persistence); the VPS uses the same `Host mac` alias but with `HostName 127.0.0.1`, `Port 2222`.
 
+## Add a Windows PC (same pattern as the Mac)
+
+- Reach it: Windows has no sshd by default. Hand the user ONE admin PowerShell script (template: `~/Hermes/windows-pc/setup-ssh.ps1`): `Add-WindowsCapability OpenSSH.Server`, sshd auto-start, firewall rule `-RemoteAddress <VPS tailscale IP>` (disable the default any-source rule), VPS key with `from="<ip>"` into `C:\ProgramData\ssh\administrators_authorized_keys` (admins ignore `~/.ssh/authorized_keys`; ACL `icacls /inheritance:r /grant Administrators:F SYSTEM:F`), `HKLM:\SOFTWARE\OpenSSH DefaultShell` = powershell.exe. User fetches it with `scp vps:path "$env:USERPROFILE\Downloads\file.ps1"` — a trailing `\` before the closing quote breaks the path when the username has a space.
+- Windows usernames often contain a space (`User "Siim Alve"` in `~/.ssh/config`, quoted).
+- PITFALL quoting: nested quotes through `ssh pc '…'` into PowerShell break (and PS 5.1 drops empty-string args, so `ssh-keygen -N ""` silently gets a passphrase). Write a .ps1 locally, `scp` it to `AppData/Local/Temp/`, run `powershell -NoProfile -ExecutionPolicy Bypass -File …` with `</dev/null`. Generate keys for the PC on the VPS and scp them over.
+- Hermes may already be installed (Desktop bundle); inventory first: version, `.env` keys (a different `TELEGRAM_BOT_TOKEN` = its own bot, no conflict — compare hashes), MEMORY.md, custom skills (not in `.bundled_manifest`). Move custom skills into the git repo (backup first), repo-scoped deploy key per machine, `scripts/sync.ps1` via Scheduled Task (`conhost.exe --headless powershell …`, every 15 min).
+- `hermes update` while the user's own `hermes --tui` or the Desktop app runs: code updates, but "CLI exposure failed: source launcher publication failed" and every later `hermes` call re-runs "completing source-update dependencies". Have the user close the TUI/Desktop, then rerun `hermes update`.
+- Honcho client on Windows: copy `honcho.json` to `%LOCALAPPDATA%\hermes\`, `hermes plugins install honcho`, `hermes config set memory.provider honcho`; check reach with `Invoke-WebRequest http://<vps-ts-ip>:8000/health`.
+
 ## Wire it into Hermes — pick one pattern
 
 ### Pattern A — native SSH terminal backend (agent's hands = the Mac)
@@ -133,4 +152,4 @@ Right choice when the VPS should stay self-contained and the Mac is touched on d
 
 ## Research pitfall
 
-- Hermes facts: fetch and grep `https://hermes-agent.nousresearch.com/docs/llms.txt` first. If a docs page comes back empty from the extractor, retry with `curl -fsSL <url>` inside execute_code and strip HTML tags — the docs pages are large Docusaurus HTML.
+- Hermes facts: fetch and grep `https://hermes-agent.nousresearch.com/docs/llms.txt` first. If a docs page comes back empty from the extractor, retry with `curl -fsSL <url>` inside execute_code and strip HTML tags — the docs pages are large Docusaurus HTML. In the stripped text, the first match for a heading is the table of contents. Search for variable or flag names (e.g. `API_SERVER_`) with `re.finditer` to land in the body.

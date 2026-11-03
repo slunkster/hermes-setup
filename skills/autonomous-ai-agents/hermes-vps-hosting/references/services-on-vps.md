@@ -24,6 +24,18 @@ Goal: everything that has a cloud API runs natively on the VPS (works while the 
 2. Give the VPS its OWN login — never copy `~/.hermes/mcp-tokens/*.json`: refresh tokens rotate, so one machine's refresh signs the other out.
 3. The user runs `ssh -t vps hermes mcp login todoist`, approves in the browser, then pastes the full failed-redirect URL (`http://127.0.0.1:<port>/callback?code=…`) back at the prompt. Don't relay the code through chat.
 
+## When an MCP OAuth login expires
+
+Symptom: the server's tools vanish from tool_search (only hosted `connectors__…` lookalikes remain) and the gateway log shows `OAuthNonInteractiveError … parking without retries`. Fix: the user runs `hermes mcp login <server>` in an SSH terminal. The gateway self-probes every 300 s and picks up the new token — no restart needed (a restart would also cut the current Telegram turn). Don't route the user to the hosted connector link as the fix; it is a separate connection.
+
+While waiting for the probe, the refreshed token works directly (check `ls -l ~/.hermes/mcp-tokens/<server>.json` mtime). Streamable-HTTP JSON-RPC, no session id needed for Todoist:
+```bash
+TOK=$(python3 -c "import json;print(json.load(open('$HOME/.hermes/mcp-tokens/todoist.json'))['access_token'])")
+curl -s -H "Authorization: Bearer $TOK" -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
+  https://ai.todoist.net/mcp -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"add-tasks","arguments":{"tasks":[{"content":"…","projectId":"…"}]}}}'
+```
+Tool names here are the server's kebab-case names (`add-tasks`, `find-projects`), not the Hermes `mcp__todoist__…` names. Never print the token.
+
 ## After connecting
 
 Update the VPS agent's MEMORY.md with which sources are native vs Mac-only, so it doesn't try `ssh mac` for Gmail or the Google API for Outlook.

@@ -38,6 +38,10 @@ $P -W ignore $G docs append <SHEET_ID> --text "
 29.10.2026 — <mõte>"
 ```
 Todoist: MCP-tööriist `add-tasks` (kui MCP pole laetud: `~/Hermes/paevaulevaade/todoist_mcp.py add-tasks '<json>'`).
+Projekti-ID-d (säästa `find-projects` kutse): Inbox `6GXCVgVgFWhj8wcH`, Töö `6hWGX97Qg2cjQvvg`, HUUB `6hcQFmVVjQ56Q4w5`, MTÜ `6hfXgpRq5mvMWjhM`, Välk `6hfXwmpCHQ4RCqmv`, Ülikool `6hfjGqRvx8Pm7XM2`. „Pane töö alla“ = projekt Töö.
+Üritus mitme ettevalmistusega („laat: plakat + Stuudium + FB event“) → üks emaülesanne ürituse nimega (kirjeldusse „Toimub PP.KK.AAAA“) + iga tegevus alamülesandeks (`parentId`); tähtaeg pane nii emale kui alamatele.
+
+Kui `mcp__todoist__*` on kadunud (gateway logis `OAuthNonInteractiveError` → server „parked“): OAuth aegus, kasutaja peab tegema `hermes mcp login todoist`. Ära kasuta asenduseks hostitud `connectors__todoist_mcp__*` tööriistu — see on eraldi ühendus, mis nõuab uut autoriseerimist. Kui `~/.hermes/mcp-tokens/todoist.json` mtime on värske (kasutaja juba logis sisse), tee töö kohe ära `todoist_mcp.py` kaudu või otse JSON-RPC-ga (retsept: skill `hermes-vps-hosting`, fail „services-on-vps“, lõik „When an MCP OAuth login expires“); gateway võtab uue tokeni ise üles 5 min probe'iga.
 Ajavöönd: suveaeg +03:00, talveaeg (okt viimasest pühapäevast märtsi lõpuni) +02:00.
 
 ## Vastus

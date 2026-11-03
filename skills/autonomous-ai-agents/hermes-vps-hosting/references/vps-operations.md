@@ -51,6 +51,15 @@ Set and check every layer: `timedatectl` on the VPS, `hermes config set timezone
 
 Write one README at the root of the shared skills repo — user wants it thorough with a TL;DR on top. Sections that proved useful: architecture diagram, machines (IPs, users, paths), network/SSH aliases/firewall, Hermes config per machine, connected services with calendar/doc/folder IDs, memory, skills sync, a table of ALL scheduled jobs, backups + restore A (snapshot) / B (fresh server, numbered) / C (lost Mac), monitoring, updates, where each secret lives (location only, never values), symptom→fix runbook, costs, limitations, history. Copy live scripts/units/compose/cron into `infra/vps/…` and `infra/mac/…` (copies, not the live files — say so), and dump only non-secret `.env` lines. Before pushing: `grep -rnE "sk-[A-Za-z0-9]{16}|eyJ[A-Za-z0-9_-]{20}|hc-ping.com/[0-9a-f]{8}|AGE-SECRET"` must find nothing. Gather facts live (`crontab -l`, `hermes cron list`, `hermes config get …`, versions) instead of from chat memory.
 
+### Sharing the setup publicly (sanitized copy)
+
+When the user wants to show the setup to someone, don't open the private repo. Build a separate public repo instead:
+1. Copy only the tracked files into `~/Hermes/<name>-public/` (`git ls-files -z | xargs -0 -I{} cp --parents {} $D/`). Then `git init` there so the private history never leaks.
+2. Scan with a regex: IPv4 addresses, emails, Estonian phones (`\+?372…`, `\b5\d{3} ?\d{4}\b`), UUIDs, long IDs (`[A-Za-z0-9_-]{28,}` catches Drive, Sheet and calendar IDs), the Telegram user id, device UDIDs, Apple team IDs, `hc-ping` URLs and token prefixes. Also grep for `password|secret|token|jwt|udid`.
+3. Replace each real value in Python with a fixed map to `<PLACEHOLDERS>`, e.g. `<VPS_PUBLIC_IP>`, `<VPS_TAILSCALE_IP>`, `you@gmail.com`, `<SHEET_ID>`. Third-party contacts in skill references count too. Re-run the scan until only localhost and example addresses remain, then add a one-line "sanitized public copy" note at the top of the README.
+4. Commit with the GitHub noreply author (`$(gh api user --jq .id)+<login>@users.noreply.github.com`), because commit metadata is public too. Then `gh repo create <owner>/<name> --public --source . --push`.
+5. Verify `gh repo view --json visibility` and an anonymous `curl` returning 200 before sending the link. Tell the user the copy does not update itself.
+
 ## Files sent in chat → Google Drive
 
 Skill `telegram-to-drive` (uploads land in `~/.hermes/cache/documents/`; its script resolves fuzzy Drive folder paths and uploads with a descriptive name).

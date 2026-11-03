@@ -50,7 +50,9 @@ curl -sL -A 'Mozilla/5.0' "https://www.riigiteataja.ee/public-api/api/v1/akt/$KE
   requested while a newer redaktsioon exists (a text whose successor had been in
   force for years still served as "current"). Reliable checks: `kehtivRedaktsioon`
   from the list, and the blob header line `Sõnastuse kehtivuse lõpp:` - it reads
-  either `hetkel kehtiv` or the date the version stopped applying.
+  `hetkel kehtiv`, a past date, or `kehtetu`. A repeal-only final version may still
+  be the list's `kehtivRedaktsioon`; if its body says `Kehtetu`, look up the
+  replacement act rather than treating the old act as currently operative.
 - Reading a dated document under the law of its time: from the same list take the
   version with the largest `kehtivuseAlgus` not after the document's date and fetch
   it by id - that is the contemporary wording of a section that has since moved.
@@ -81,7 +83,11 @@ Then locate sections by string: `t[t.find('§ 106.'):][:3000]`. Superscripts deg
   with an id, incl. KOV määrused and old ids).
 - **Sanity-check currency by content**, e.g. a newly inserted section present, or a
   rate matching the latest published change; an act page whose newest `RT I,` marker
-  is years old is a historical version.
+  is years old is a historical version. When a reform replaces the governing act,
+  search the replacement by title (not just the old abbreviation): for example,
+  the former Hädaolukorra seadus was repealed when the Kriisiolukorra ja riigikaitse
+  seadus took effect; current mass-evacuation and crisis-plan rules must be located
+  in the latter, not lifted from old HOS snippets.
 - **Firecrawl-style extraction caps around 50 k characters** and may return only the
   table of contents for act pages: fine for discovering the section list, useless for
   quoting a paragraph. Use the API.
