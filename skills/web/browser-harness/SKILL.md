@@ -135,7 +135,8 @@ Cloud profile cookie sync reference: https://github.com/browser-use/browser-harn
 - If the current tab is stale or internal, call `ensure_real_tab()`.
 - Use `js(...)` for DOM inspection or extraction when coordinates are the wrong tool.
 - When entering unusually long text, avoid slow per-character typing: find a faster page-appropriate input method, then verify the page kept the exact value.
-- Login walls: stop and ask. Exception: use available SSO automatically when Chrome is already signed in; still stop for passwords, MFA, consent, or ambiguous account choice.
+- Login walls: distinguish a dismissible sign-in overlay from an actual authentication requirement. On public Facebook pages, inspect AX buttons for `Close`, dismiss the overlay if available, then re-read `document.body.innerText`; public posts may remain accessible without authentication. Stop and ask when continued access actually requires login. Exception: use available SSO automatically when Chrome is already signed in; still stop for passwords, MFA, consent, or ambiguous account choice.
+- For social-media announcements, inspect attached images before treating an empty post body as missing information: posters often contain all the details, while `img.alt` says only “May be an image of text.” Capture the visible poster or load its image URL for visual reading; dumping image URLs alone does not inspect their contents. If a feed later requires login, report the accessible coverage as partial rather than claiming the announcement does not exist.
 - Raw CDP is available with `cdp("Domain.method", ...)`.
 
 ## Recordings and Videos

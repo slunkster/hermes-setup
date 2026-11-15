@@ -23,6 +23,18 @@ Worked annotations for the SKILL.md checklist: use for subtle cases or when seve
 - Capitalise only the first word and proper nouns: „Punamütsike ja seitse pöialpoissi“.
 - Verify a suspicious title by exact-phrase search (`"..."`) plus the organiser's own page/listing — real children's productions can read like mash-ups. If verification fails, report that instead of "fixing" the name.
 
+## Formal prose (grant texts, reports)
+
+- -des lisand takes a comma: `parandab võimalusi, tuues fookusesse teemad, mis …`. If its doer differs from the sentence subject it dangles — `Tuues õppe mitteformaalsesse keskkonda, paraneb arusaam` → `Kui tuua õpe …, paraneb arusaam`.
+- A sentence that is only a -des lisand (`Tuues kaasa toe ja võrdsete võimaluste tagamise.`) has no öeldis — give it one: `Projekt toob … ja aitab tagada …`.
+- „nii“ needs its pair: `nii X kui ka Y`; with only one member, drop „nii“. Also `nii ringis kui rühmas` → `nii ringis kui ka rühmas`.
+- `läbi praktilise osa` (means/instrument) → `praktilise osa kaudu`; `antud projekt` → `see projekt`.
+- Spacing/compounds: `muuhulgas` → `muu hulgas`; `fookus-sihtrühmad` → `fookussihtrühmad`; `formaal ja mitteformaalõpe` → `formaal- ja mitteformaalõpe`.
+- Verb government: `arutlema millegi üle` (not `arutama … üle`); `lõimida formaal- ja mitteformaalõpet`; check that the verb fits every coordinated subject (`rikastub kogemuste pagas ja iseseisvumine` ✗ → `… ja toetatakse iseseisvumist`).
+- tabu → illative/translative `tabuks` (not `tabuuks`).
+- Abbreviations a grant evaluator may not know (FÕ, MFÕ) — write them out.
+- Year spans after a document name: `ELi noortestrateegia 2019–2027` (not `2019-2027a`).
+
 ## Punctuation and quotes
 
 - Standard quotes: „ … “. Straight quotes are everywhere casually — mention only in passing, or not at all.

@@ -35,7 +35,9 @@ Start with a `web_search` on the category term, then open the plausible hits wit
 
 - Pull the full catalogue listing once (`js` on `a[href]` + `innerText`) to get every variant/size/colour of a model in one pass, instead of opening products one by one.
 - Verify a suspect product still exists via the shop's own site search — dead products linger in search indexes and answer with a 404 layout.
-- Done when each candidate has: model name, exact dimensions, material, colour split (top vs frame), folded thickness, weight, load rating, price, VAT basis, stock/delivery.
+- Done when each candidate has: exact model, price, VAT basis, stock/delivery and the category-specific specifications that determine fitness. For furniture, include dimensions, material, colour split, folded thickness, weight and load rating; for electronics, verify connections, channel counts, recording modes and included accessories.
+- Cross-check purchase-critical technical claims against the manufacturer's product page or manual when retailer headings and detailed specifications disagree — marketing summaries can attribute features from another model. Keep verified retailer price/stock separate from manufacturer specifications.
+- Check available quantity against the requested quantity — one unit in stock does not establish availability of a four-unit setup; label supplier orders and unconfirmed remaining quantities explicitly.
 
 ### 3. Normalize prices before presenting
 
@@ -57,6 +59,10 @@ Multi-unit purchases for events, LANs, classrooms virtually always need a stacki
 Per option: model, shop, price (both VAT bases when relevant), 3–5 spec bullets that answer the original constraints, one link, one honest minus. End with a quantity × price budget table for the realistic counts, plus the used-market alternative. Offer the follow-up the user actually wants next: sending the quote/delivery request.
 
 Answer in the user's language (Estonian for this user). Do not narrate the search process.
+
+For a fixed-budget equipment setup, compare complete working baskets rather than isolated headline products. Include required cables, stands/mounts, monitoring, storage and power; state which existing equipment is assumed. Calculate quantity × unit price and totals with a tool. Separate verified prices from allowances for unpriced accessories and delivery, and leave enough headroom for those allowances. When the user asks for options, deliver distinct alternatives with a clear recommendation, not a single provisional basket presented as the finished comparison.
+
+For podcast/audio setups, load `references/podcast-equipment.md` for compatibility checks and basket composition.
 
 ## Price data: hinnavaatlus.ee API (preferred for electronics)
 

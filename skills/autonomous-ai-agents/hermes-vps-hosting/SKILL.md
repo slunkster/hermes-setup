@@ -96,7 +96,14 @@ Alternative without a third-party service: reverse tunnel — the Mac runs autos
 - PITFALL quoting: nested quotes through `ssh pc '…'` into PowerShell break (and PS 5.1 drops empty-string args, so `ssh-keygen -N ""` silently gets a passphrase). Write a .ps1 locally, `scp` it to `AppData/Local/Temp/`, run `powershell -NoProfile -ExecutionPolicy Bypass -File …` with `</dev/null`. Generate keys for the PC on the VPS and scp them over.
 - Hermes may already be installed (Desktop bundle); inventory first: version, `.env` keys (a different `TELEGRAM_BOT_TOKEN` = its own bot, no conflict — compare hashes), MEMORY.md, custom skills (not in `.bundled_manifest`). Move custom skills into the git repo (backup first), repo-scoped deploy key per machine, `scripts/sync.ps1` via Scheduled Task (`conhost.exe --headless powershell …`, every 15 min).
 - `hermes update` while the user's own `hermes --tui` or the Desktop app runs: code updates, but "CLI exposure failed: source launcher publication failed" and every later `hermes` call re-runs "completing source-update dependencies". Have the user close the TUI/Desktop, then rerun `hermes update`.
+- Dual boot: if the PC also has a Linux install, both OSes share the hardware but are separate Tailscale nodes (own IP, own Hermes, own MEMORY.md) and are never online together. Give each its own VPS alias (`ssh pc`, `ssh linux`), state in README/memories which one is main, and never schedule anything that needs the desktop.
 - Honcho client on Windows: copy `honcho.json` to `%LOCALAPPDATA%\hermes\`, `hermes plugins install honcho`, `hermes config set memory.provider honcho`; check reach with `Invoke-WebRequest http://<vps-ts-ip>:8000/health`.
+
+## Add a Linux desktop
+
+- Bootstrap: Tailscale, Hermes install, a systemd **user** timer running `scripts/sync.sh` every 15 min (template `infra/linux/setup-linux.sh` in the skills repo); copy `.env` keys and `honcho.json` from the VPS, dropping `pinUserPeer` (that is only for the Telegram gateway).
+- Let the VPS in: generate the key ON the VPS (`~/.ssh/linux_access`, `Host linux` alias), append the pubkey yourself to `~/.ssh/authorized_keys` with `from="<VPS ts ip>"`, and give the user ONE sudo script (template `infra/linux/setup-ssh-from-vps.sh`): sshd drop-in with no passwords/root and `AllowUsers <user>@<VPS ts ip>`, `sshd -t`, `ufw allow in on tailscale0 from <VPS ts ip> to any port 22 proto tcp`, `systemctl enable --now sshd`. Do NOT use `ListenAddress <tailscale ip>`, because sshd fails to start when it boots before tailscaled.
+- Arch/CachyOS ships ufw active by default, so the rule matters. Verify from the VPS with `ssh linux hostname`.
 
 ## Wire it into Hermes — pick one pattern
 
@@ -144,11 +151,22 @@ Right choice when the VPS should stay self-contained and the Mac is touched on d
 - Memories and sessions never sync automatically. When the user wants one memory across machines, self-host Honcho on the VPS and point every Hermes at it (built-in MEMORY.md/USER.md stay per machine; raise their limits too). Full recipe — Docker server, DeepSeek Flash as the cheap analysis model, client honcho.json, speed tuning, backup: `references/shared-memory-honcho.md`.
 - "Skill present" ≠ "skill works": a skill needs its tools and permissions in the environment where its commands execute — this is exactly why the SSH backend beats copying skill files around.
 
+## Outbound communication confirmation policy
+
+The user requires the entire NEW direct typed confirmation message to equal `Jah, palun saada need meilid ära rahvale.` literally after the final recipients/content/attachments/permissions preview. Typos, capitalization, whitespace or punctuation differences must not count. This covers sends to other people: email/replies/forwards, messages, posts, attendee-notifying calendar actions and file sharing. Approval applies only to the unchanged previewed send/batch in the same conversation and is consumed on attempt; never reuse it through SSH, delegation, cron or retries. Normal assistant replies and existing briefings/health alerts to Siim are exempt. Local drafts and private non-notifying writes remain subject to their ordinary approvals.
+
+This rule is stored in default-profile `SOUL.md` on Mac and VPS so it loads independent of cwd. Existing other sessions need renewal; have the user restart the VPS gateway themselves. A prompt policy is NOT a technical send interlock: report that distinction explicitly, and never claim arbitrary terminal/browser/API routes are technically prevented. Read back remote policy after any change and preserve unrelated SOUL content. If implementing a hard gate, require trusted user-event validation, action-bound single-use approval, and constrained egress/credentials; keyword matching shell commands or a model-supplied confirmation string is not sufficient.
+
 ## Verification
 
 - `ssh mac hostname` from the VPS returns the Mac's hostname; then smoke-test each Mac data source the user relies on (Notes/Mail/Reminders/Calendar via JXA, the daily-briefing collector) and report a per-source table.
 - Pattern A: `hermes doctor` passes; `hermes chat -q "which memo; hostname"` runs on the Mac.
 - Pattern B: `memo --help` on the VPS reaches the Mac's memo CLI through the wrapper.
+
+## Backup monitoring
+
+- Diagnose backup alerts against both Drive and the latest completed attempt. Historical tracebacks before the latest successful `uploaded` line are not current failures; do not clear history merely to silence them. Backup health helper/tests live under `~/Hermes/backups/`; the health script is `~/.hermes/scripts/healthcheck.sh`.
+- Run large backup verification jobs as tracked background terminal tasks with completion notifications: packing and uploading several GB can exceed the foreground tool ceiling even when its requested timeout is longer. A foreground timeout may kill the whole backup; inspect process and Drive state before retrying.
 
 ## Research pitfall
 

@@ -1,6 +1,6 @@
 ---
 name: community-social-posts
-description: "Use when writing a Facebook post text for the user's orgs."
+description: "Use when writing FB posts or news articles for user's orgs."
 version: 1.0.0
 metadata:
   hermes:
@@ -8,12 +8,15 @@ metadata:
     related_skills: [google-workspace, estonian-proofreading, humanizer]
 ---
 
-# Community social posts (Facebook etc.)
+# Community social posts and press articles
 
 ## When to Use
-User asks for a post text ("tekst facebooki postituse juurde", announcement, kuulutus) for
-Setomaa youth work, school, MTÜ Algatusruum, Välk Meedia or similar — usually announcing
-a schedule, event, or table they just made.
+User asks for a post text ("tekst facebooki postituse juurde", announcement, kuulutus) or a
+newspaper article (e.g. ajaleht Setomaa, valla leht) for Setomaa youth work, school,
+Setomaa Noorsootöö Keskus, MTÜ Algatusruum, Välk Meedia or similar.
+Facebook posts: rules + template below. Newspaper articles: see
+`references/newspaper-articles.md` (questions to ask, style rules, delivery to Google Docs
+via `scripts/copy_html_to_clipboard.py`).
 
 ## Rules (user preferences)
 1. **Short by default.** Hook line + 1 sentence + link/CTA + 1–2 hashtags. NO long

@@ -13,8 +13,9 @@ Class of task: the user wrote a short Estonian text — schedule note, announcem
 2. Verify every proper noun BEFORE flagging anything else: event/play/book titles, venue and organisation names. Exact-phrase web search. A title that reads like a mix-up can be real — „Punamütsike ja seitse pöialpoissi“ is an actual Rahvusooper Estonia haridusprojekt for 4–10-year-olds, not a confused Punamütsike + Lumivalgeke. Never rewrite a proper name you have not verified.
 3. Check the text against the checklist below; `references/estonian-checks.md` carries the same rules annotated with worked examples for subtle cases or when several error classes stack.
 4. Anything not covered: verify at EKI (eki.ee — Eesti keele käsiraamat, keelenõu) or Sõnaveeb (sonaveeb.ee). Never guess a comma or case rule — an invented rule is worse than silence.
-5. Answer in Estonian, compact: one-line verdict → the fully corrected sentence → per-fix list (wrong → right, one clause of rule each) → one „kontrollisin ka …“ line for externally verified facts. A yes/no question gets its verdict in line one.
-6. Nothing wrong? Say so plainly and stop. Never invent fixes to seem useful.
+5. Answer in Estonian, compact: one-line verdict → the fully corrected sentence → per-fix list (wrong → right, one clause of rule each) → one „kontrollisin ka …“ line for externally verified facts. A yes/no question gets its verdict in line one. Longer texts (grant sections, letters): the whole corrected text first as one clean paste block, then the fix list; a content/accuracy remark (e.g. an example that doesn't fit the cited goal) goes in a separate „Sisuline märkus“ line, never silently into the text.
+6. Follow-up edits („lisa see sinna …“): put the addition into the text and return the WHOLE updated text as one paste-ready block — the user copies the full text, not a single changed line.
+7. Nothing wrong? Say so plainly and stop. Never invent fixes to seem useful.
 
 ## Checklist (short texts)
 
@@ -29,12 +30,16 @@ Class of task: the user wrote a short Estonian text — schedule note, announcem
 - Elliptical subject in notes: „1.–4. kl sõidavad“ is fine informally; in a full sentence prefer „1.–4. klassi õpilased sõidavad“. Flag as optional clarity, not an error.
 - Commas are structural (clause boundaries), not rhythm-based: „Ma tean, et ta tuleb.“
 
+## Checklist (longer formal prose — grant texts, reports)
+
+See `references/estonian-checks.md` § „Formal prose“: dangling -des lisand, lone „nii“ without „kui ka“, „läbi“ → „kaudu“, „antud“ → „see“, compound spacing („muu hulgas“), headless sentence fragments, unexplained abbreviations (FÕ/MFÕ).
+
 ## Pitfalls
 
 - Don't import English typography habits (hyphen for ranges, straight quotes in body text, comma instincts). Check each dash and comma against Estonian rules, not against feel.
 - Proper nouns outrank plausibility: search before touching a title; a real production's name is not an error to fix.
 - Don't silently change the meaning: swapping „sõidavad“ → „sõidab“ or de-ellipsing a note rewrites the author's sentence — offer it as a note instead.
-- Keep fixes minimal and the author's voice; the deliverable is their text corrected, not your rewrite.
+- Keep fixes minimal and the author's voice; the deliverable is their text corrected, not your rewrite. When the user says „ära liigselt sõnastust muuda“, rewrite a sentence only where it is ungrammatical (fragment, dangling lisand, wrong verb government) and name that fix in the list.
 
 ## Related skills
 

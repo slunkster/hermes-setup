@@ -27,7 +27,7 @@ Teine argument = ajavöönd (vaikimisi +03:00 suveaeg; talveajal — okt viimase
 - **Maci kalendrid** (`ekcal`, EventKit; allikas `ekcal.swift`): Exchange (töö work@example.org), student@ut.ee, iCloud. Google'i sündmused korduvad siin → arvesta ainult mitte-Google kontosid.
 - **Outlooki meil** (`outlook_mail.js`, Mail.app): töö (konto „Exchange“) + ülikool („student@ut.ee“). Mail.app peab töötama — kui viga/tühi, käivita `open -g -a Mail`, oota 20 s, proovi uuesti.
 - **Gmail**: you@gmail.com. Olulise kirja täistekst → `$GAPI gmail get ID` (mitmeosalise kirja sisu võib tulla tühi → loe Gmail API-ga otse).
-- **Todoist**: projektid Inbox, Töö, HUUB, MTÜ, Välk, Ülikool. `todoist_mcp.py` uuendab tokenit ise.
+- **Todoist**: projektid Inbox, Töö, HUUB, MTÜ, Välk, Ülikool. Kasutaja eelistus: kasuta VPS-i ühendust ka Maci sessioonis; eraldi Maci autoriseerimist pole vaja taastada, kui VPS-i kaudu töötab. Näiteks `ssh -o BatchMode=yes vps 'python3 ~/Hermes/paevaulevaade/todoist_mcp.py find-tasks '\''{"filter":"overdue | due before: +4 days","limit":100}'\'''`. Maci `collect.sh` kasutab veel kohalikku klienti: selle Todoisti vea korral asenda tulemus VPS-i päringuga, mitte ära kuuluta Todoisti ligipääsu puuduvaks. `todoist_mcp.py` uuendab tokenit ise; ära kopeeri pöörlevaid OAuth-tokeneid masinate vahel.
 
 ## 2. Ülevaate vorm (lühike, tegevuspõhine)
 

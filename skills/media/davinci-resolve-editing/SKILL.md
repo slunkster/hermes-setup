@@ -17,7 +17,7 @@ Any request to inspect or change a Resolve project from Hermes: recut timelines,
 
 ## Setup facts
 
-User runs **free** DaVinci Resolve (21.x) on Windows; media on `G:\Active Media\...`. Control goes through the community `davinci-resolve-mcp` repo (`~/Downloads/davinci-resolve-mcp`): `src/CursorBridge.py` runs INSIDE Resolve (Workspace → Scripts → CursorBridge) and serves HTTP on `127.0.0.1:9876`; `src/resolve_mcp_bridge.py` is the MCP server registered in Hermes as `davinci-resolve` (registration: see the MCP reference in the hermes-agent skill). Free Resolve has no external scripting, so everything goes through that in-app bridge.
+User runs **free** DaVinci Resolve (21.x) on Windows; media on `G:\Active Media\...`. Windows is now the secondary half of a dual boot (Linux desktop is the main OS), so Resolve work happens only while booted into Windows — from Linux, ask the user to reboot into Windows first; from the VPS, `ssh pc` times out while Linux runs. Control goes through the community `davinci-resolve-mcp` repo (`~/Downloads/davinci-resolve-mcp`): `src/CursorBridge.py` runs INSIDE Resolve (Workspace → Scripts → CursorBridge) and serves HTTP on `127.0.0.1:9876`; `src/resolve_mcp_bridge.py` is the MCP server registered in Hermes as `davinci-resolve` (registration: see the MCP reference in the hermes-agent skill). Free Resolve has no external scripting, so everything goes through that in-app bridge.
 
 ## Procedure
 
@@ -29,6 +29,10 @@ User runs **free** DaVinci Resolve (21.x) on Windows; media on `G:\Active Media\
 6. **Audio analysis**: extract straight from the source file with ffmpeg (`-ss` before `-i`, `-map 0:<audio idx>`, `-ac 1 -ar 22050`) — seconds even on 100+ GB files. Compute the source offset from the FCPXML of the exact clip you're replacing. Run librosa via `uv run --no-project --python 3.12 --with librosa python script.py`. Recipe: `references/beat-cut-recipe.md`.
 7. **Build + import**: rewrite the target `<mc-clip>` into many clips in the FCPXML, then `POST /mediapool/timeline/import` with `{"timelineName": ..., "importSourceClips": true, "sourceClipsPath": "<media folder>"}`. `importSourceClips: false` produces an OFFLINE multicam.
 8. **Verify**: compare clip counts/lengths with the original; confirm untouched clips match 1:1; check new source pool items have real `File Path`s. Then export the same frames from both timelines (`/page` color → `/playhead` → `/project/export-frame`) and compare with `ffmpeg -lavfi psnr` plus a side-by-side hstack viewed with vision. Tell the user what you could not verify (offline status, look of the cuts).
+
+## Plain two-camera cut with one continuous audio clip (no multicam)
+
+Build an FCPXML of plain `asset-clip`s per timeline (`~/Hermes/bluesfest/v2/make_fcpxml.py`): cuts on the spine, the master audio as a `lane="-1"` clip nested in the first spine clip (its `offset` = the parent's `start`). Resolve **ignores `srcEnable`**: the import puts the cuts with their own camera audio on V2/A1 and the "audio" clip with its video on V1/A2. Clean up through the bridge (`rb_clean.py`): unlink each V/A pair (`/timeline/clips/link` with `linked:false`, two refs per call), then delete the V1 clip and all A1 clips (`/timeline/clips/delete`, 0-based `clipIndex`); assert counts before and after. Verify frame accuracy (`rb_verify.py`): export a still mid-shot and compare with ffmpeg-decoded source frames at offsets −2..+2; the minimum must be at 0. Asset `start` is the file's timecode in frames (ffprobe stream tag); files without timecode start at 0.
 
 ## Cutting preferences (this user)
 

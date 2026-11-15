@@ -22,8 +22,8 @@ tee ära ja raporteeri lühidalt; küsi ainult siis, kui mõni asi on päriselt 
 |---|---|---|
 | Tegevus | „helista“, „saada“, „tee“, „vaata üle“ | **Todoist** (`add-tasks`), sobiv projekt: Töö (Setomaa kool/SNK/noortekeskus), HUUB, MTÜ (Algatusruum), Välk (Välk Meedia), Ülikool, muu → Inbox |
 | Ostmine | „osta“, „vaja on …“ | **Todoist Inbox**, silt `ostud`, sisu nt „Osta: lambipirn“ |
-| Kindel aeg/kohtumine | kellaaeg + koht/inimene, „ole …“, „kohtun …“ | **Google'i kalender**: tööasjad → „Töö - SNK“ (`<WORK_CALENDAR_ID>@group.calendar.google.com`), muu → `you@gmail.com`. Vaikimisi kestus 30 min, kui pole öeldud. |
-| Mõte / idee | „mõte“, „idee“, „äkki võiks“, „jäta meelde, et …“ ilma tegevuseta | **Google Doc „Hermes – mõtted ja ideed“** (`<SHEET_ID>`) — lisa lõppu rida `PP.KK.AAAA — <mõte>` |
+| Kindel aeg/kohtumine | kellaaeg + koht/inimene, „ole …“, „kohtun …“ | **Google'i kalender**: tööasjad → „Töö - SNK“ (`<WORK_CALENDAR_ID>`), muu → `you@gmail.com`. Vaikimisi kestus 30 min, kui pole öeldud. |
+| Mõte / idee | „mõte“, „idee“, „äkki võiks“, „jäta meelde, et …“ ilma tegevuseta | **Google Doc „Hermes – mõtted ja ideed“** (`<DOC_ID>`) — lisa lõppu rida `PP.KK.AAAA — <mõte>` |
 | Fakt minu kohta | eelistus, inimene, harjumus | Honcho/mälu (`honcho_conclude` või memory) — mitte Todoisti |
 
 Tähtaeg ilma kellaajata („reedeks“) → Todoisti `dueString`, mitte kalendrisse.
@@ -34,11 +34,11 @@ Tähtaeg ilma kellaajata („reedeks“) → Todoisti `dueString`, mitte kalendr
 P=$(ls -td ~/.hermes/installs/*/environments/*/venv | head -1)/bin/python
 G=~/.hermes/skills/productivity/google-workspace/scripts/google_api.py
 $P -W ignore $G calendar create --summary "…" --start 2026-10-30T14:45:00+02:00 --end 2026-10-30T15:15:00+02:00 --location "…" --calendar <id>
-$P -W ignore $G docs append <SHEET_ID> --text "
+$P -W ignore $G docs append <DOC_ID> --text "
 29.10.2026 — <mõte>"
 ```
 Todoist: MCP-tööriist `add-tasks` (kui MCP pole laetud: `~/Hermes/paevaulevaade/todoist_mcp.py add-tasks '<json>'`).
-Projekti-ID-d (säästa `find-projects` kutse): Inbox `6GXCVgVgFWhj8wcH`, Töö `6hWGX97Qg2cjQvvg`, HUUB `6hcQFmVVjQ56Q4w5`, MTÜ `6hfXgpRq5mvMWjhM`, Välk `6hfXwmpCHQ4RCqmv`, Ülikool `6hfjGqRvx8Pm7XM2`. „Pane töö alla“ = projekt Töö.
+Projekti-ID-d (säästa `find-projects` kutse): Inbox `<ID>`, Töö `<ID>`, HUUB `<ID>`, MTÜ `<ID>`, Välk `<ID>`, Ülikool `<ID>`. „Pane töö alla“ = projekt Töö.
 Üritus mitme ettevalmistusega („laat: plakat + Stuudium + FB event“) → üks emaülesanne ürituse nimega (kirjeldusse „Toimub PP.KK.AAAA“) + iga tegevus alamülesandeks (`parentId`); tähtaeg pane nii emale kui alamatele.
 
 Kui `mcp__todoist__*` on kadunud (gateway logis `OAuthNonInteractiveError` → server „parked“): OAuth aegus, kasutaja peab tegema `hermes mcp login todoist`. Ära kasuta asenduseks hostitud `connectors__todoist_mcp__*` tööriistu — see on eraldi ühendus, mis nõuab uut autoriseerimist. Kui `~/.hermes/mcp-tokens/todoist.json` mtime on värske (kasutaja juba logis sisse), tee töö kohe ära `todoist_mcp.py` kaudu või otse JSON-RPC-ga (retsept: skill `hermes-vps-hosting`, fail „services-on-vps“, lõik „When an MCP OAuth login expires“); gateway võtab uue tokeni ise üles 5 min probe'iga.

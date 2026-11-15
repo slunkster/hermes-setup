@@ -4,7 +4,7 @@ Base URL: `http://<VPS_TAILSCALE_IP>:8642` (Tailscale only; the API server runs 
 Key: `~/Hermes/iphone/api-key.txt` on the VPS.
 
 ## Prerequisite (once)
-1. Install **Tailscale** from the App Store, sign in with siim.alve@ (same account as the Mac/PC).
+1. Install **Tailscale** from the App Store, sign in with you@ (same account as the Mac/PC).
 2. Tailscale → Settings → **VPN On Demand** → On.
 
 ## Why the runs version

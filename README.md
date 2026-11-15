@@ -3,8 +3,9 @@
 > **Public sanitized copy** of my private Hermes setup repo. IP addresses, e-mails, calendar/Drive/Sheet IDs, device IDs and contacts are replaced with `<PLACEHOLDERS>`. No secrets were ever stored here; section 12 says where they live.
 
 Personal AI-assistant setup: one always-on Hermes agent on a VPS (Telegram, 24/7) plus a
-local Hermes on the MacBook and on the Windows PC, all sharing skills (this repo) and long-term
-memory (Honcho). The iPhone talks to the VPS (Telegram; Siri shortcut in progress).
+local Hermes on the **Linux desktop (main computer since Nov 2026)**, the MacBook and — legacy — the
+Windows install on the same desktop (dual boot). All share skills (this repo) and long-term memory
+(Honcho). The iPhone talks to the VPS (Telegram; Siri shortcut in progress).
 
 Built 28–29 Oct 2026. This file is the single source of truth for *what runs where* — read it
 before changing or repairing anything. No secrets are stored in this repo; section 12 says
@@ -20,11 +21,14 @@ where each one lives.
   and **Honcho** shared memory (Docker).
 - **Mac** (Tailscale **<MAC_TAILSCALE_IP>**) runs its own local Hermes (TUI, Apple apps, Xcode…).
   The VPS reaches the Mac with `ssh mac "…"` for Notes / Mail.app (Outlook + UT mail) / Reminders — **only while the Mac is awake**.
-- **Windows PC** `slunkpc` (Tailscale **<PC_TAILSCALE_IP>**) runs its own local Hermes (Desktop app / `hermes --tui`,
-  DaVinci Resolve MCP, ETS2, video projects). The VPS reaches it with `ssh pc "…"` (PowerShell) — **only while the PC is awake**.
-  The Desktop app can also connect to the VPS dashboard `http://<VPS_TAILSCALE_IP>:9119` (user `siim`).
+- **Linux desktop** `slunk-linux` (CachyOS + Hyprland, Tailscale **<LINUX_TAILSCALE_IP>**) = **main computer**: local Hermes
+  (TUI), games (Steam, native ETS2), files. The VPS reaches it with `ssh linux "…"` — **only while it is booted into Linux and awake**.
+- **Windows** `slunkpc` (Tailscale **<PC_TAILSCALE_IP>**) = **secondary/legacy**, the other half of the same desktop's
+  **dual boot**. Kept for Windows-only programs (DaVinci Resolve MCP, old video projects). Own local Hermes;
+  the VPS reaches it with `ssh pc "…"` (PowerShell) — **only while booted into Windows**. `ssh linux` and `ssh pc`
+  are never reachable at the same time.
 - **iPhone** = Telegram (works) + Siri shortcut "Jarvis" → VPS API server `:8642` over Tailscale — **⚠ not working yet** (section 2).
-- **Skills** = this private repo, auto-synced every 15 min on all three machines. **Memory** = Honcho on the VPS, shared by all three.
+- **Skills** = this private repo, auto-synced every 15 min on every machine. **Memory** = Honcho on the VPS, shared by all.
 - **Alerts:** problems → Telegram at 09:00 (silent when fine); VPS/bot dead → healthchecks.io email/Telegram after ~30 min.
 - **Backup key** (decrypts backups) is ONLY on the Mac `~/.config/hermes-backup/age-key.txt` + Bitwarden note
   "Hermes VPS backup key (age)". Lose both = backups are useless.
@@ -34,7 +38,8 @@ where each one lives.
   ssh vps 'systemctl --user restart hermes-gateway'   # VPS bot
   hermes gateway restart                              # Mac
   ```
-- **Updating:** `hermes update` (Mac) / `ssh vps 'hermes update'` → then the restart line above. The 09:00 check tells you when.
+- **Updating:** `hermes update` (Linux, Mac) / `ssh vps 'hermes update'` → then the restart line above (Linux has no gateway).
+  The 09:00 check tells you when (VPS + Mac).
 - **Nightly order (VPS):** 03:30 backup → ~04:00 security updates → 04:30 reboot *only if needed* → 08:00 briefing → 09:00 check.
 
 ---
@@ -69,7 +74,7 @@ where each one lives.
                                  ▼
 ┌──────────────────────── VPS  (Contabo, 24/7) ─────────────────────────┐
 │ hermes-gateway (systemd --user)   ← Telegram bot, cron jobs            │
-│ hermes-dashboard :9119 (Tailscale only) ← Windows/Mac desktop app      │
+│ hermes-dashboard :9119 (Tailscale only) ← desktop app / browser        │
 │ API server :8642 (inside hermes-gateway, Tailscale only) ← iPhone Siri │
 │ Honcho (Docker: api :8000, deriver, postgres, redis) ← shared memory   │
 │ TalTech Whisper (local Estonian speech-to-text)                        │
@@ -83,25 +88,26 @@ where each one lives.
 ┌──────── MacBook Air (M5) ────────┐      GitHub slunkster/hermes-skills
 │ local Hermes (TUI, launchd gw,   │      healthchecks.io
 │  NO Telegram)                    │
-│ Apple Notes, Mail.app (Outlook   │
-│  work + student@ut.ee), Reminders,  │◄──── Windows PC "slunkpc": Hermes desktop
-│  Calendar, files, Xcode, UniHub  │      (own local Hermes, see below)
+│ Apple Notes, Mail.app (Outlook   │      iPhone
+│  work + student@ut.ee), Reminders,  │      Telegram · Siri → :8642
+│  Calendar, files, Xcode, UniHub  │      (Tailscale app)
 │ Honcho client → VPS              │
 └──────────────────────────────────┘
 
-        ssh pc "…" (PowerShell, only when awake)            iPhone
-                ▼                                     Telegram · Siri → :8642
-┌──────── Windows PC "slunkpc" (Win 11) ───────┐      (Tailscale app)
-│ local Hermes (Desktop app, TUI, NO Telegram) │
-│ DaVinci Resolve MCP, video projects, ETS2    │
-│ skills repo clone + Honcho client → VPS      │
-└──────────────────────────────────────────────┘
+  ssh linux "…"  (booted into Linux)      ssh pc "…"  (booted into Windows, PowerShell)
+                ▼                                      ▼
+┌──────────── Desktop PC — dual boot, only ONE OS runs at a time ─────────────┐
+│ ① CachyOS "slunk-linux"  = MAIN          │ ② Windows 11 "slunkpc" = legacy  │
+│ local Hermes (TUI, no gateway/Telegram)  │ local Hermes (Desktop app, TUI)  │
+│ Steam + native ETS2, files, browser      │ DaVinci Resolve MCP, old video   │
+│ skills: systemd timer · Honcho → VPS     │ skills: Scheduled Task · Honcho  │
+└──────────────────────────────────────────┴──────────────────────────────────┘
 ```
 
 Design principle: **one brain, several hands.** The VPS is the canonical 24/7 agent; the Mac (Apple-only
-data) and the Windows PC (programs, local files, video) are peripherals the VPS can reach over SSH,
-and each also runs a full local agent of its own. All share skills (git) and memory (Honcho).
-Built-in memory files (`MEMORY.md`/`USER.md`) are per machine.
+data) and the desktop PC (Linux = main; Windows = Windows-only programs) are peripherals the VPS can
+reach over SSH, and each also runs a full local agent of its own. All share skills (git) and memory (Honcho).
+Built-in memory files (`MEMORY.md`/`USER.md`) are per machine (the Linux and Windows installs have separate ones).
 
 ---
 
@@ -130,7 +136,11 @@ Built-in memory files (`MEMORY.md`/`USER.md`) are per machine.
 | Must be | awake + logged in for `ssh mac` (FileVault: unreachable after reboot until login) |
 | Work dir | `~/Hermes/<topic>/` (rules `~/Hermes/.hermes.md`) |
 
-### Windows PC (Windows 11 Pro)
+### Windows (Windows 11 Pro) — secondary, dual boot with the Linux desktop
+Same physical machine as the Linux desktop below. Since Nov 2026 Linux is the main OS; boot into
+Windows only for Windows-only programs (DaVinci Resolve + MCP bridge, old video projects, Coop Pank widget).
+ETS2 and everyday work moved to Linux. Nothing scheduled may rely on Windows being up.
+
 | | |
 |---|---|
 | Tailscale | `slunkpc` <PC_TAILSCALE_IP> |
@@ -138,11 +148,32 @@ Built-in memory files (`MEMORY.md`/`USER.md`) are per machine.
 | Hermes | v0.22.7, data `%LOCALAPPDATA%\hermes`, launcher `%LOCALAPPDATA%\hermes\bin\hermes.exe`; Desktop app + `hermes --tui` |
 | Gateway | Scheduled Task `Hermes_Gateway` (at login); **no messaging platforms** — `TELEGRAM_*` commented out in `.env` (that bot's token was already revoked) |
 | Reachable from VPS | OpenSSH Server (auto-start), firewall rule `Hermes-VPS-SSH` allows port 22 **only from <VPS_TAILSCALE_IP>**; VPS key in `C:\ProgramData\ssh\administrators_authorized_keys` with `from="<VPS_TAILSCALE_IP>"`; default SSH shell = PowerShell. Set up with `infra/windows/setup-ssh.ps1` (admin PowerShell). |
-| Must be | awake for `ssh pc` (turn off sleep on AC if it should always be reachable) |
-| Extras | DaVinci Resolve MCP bridge `~\Downloads\davinci-resolve-mcp`, ETS2 mods, Coop Pank widget (`~\.enablebanking`) |
+| Must be | **booted into Windows** and awake for `ssh pc` (when Linux is running, `ssh pc` times out — expected) |
+| Disks | Windows system on `nvme0n1` (NTFS); data disks `SmallSSD` (sda1) and `RawVideo` (sdb1) are NTFS and visible from Linux too |
+| Extras | DaVinci Resolve MCP bridge `~\Downloads\davinci-resolve-mcp`, Coop Pank widget (`~\.enablebanking`); ETS2 mods here are legacy (live install is on Linux) |
 
 Remote option: the Desktop app can also use the VPS — Settings → Gateways → Remote gateway
 `http://<VPS_TAILSCALE_IP>:9119`, user `siim`. Use **the IP**, not `hermes-vps` (Host-header check).
+
+### Linux desktop (CachyOS / Arch, Hyprland) — MAIN computer, added 12 Nov 2026
+Replaced Windows for nearly everything (dual boot on the same machine, Linux on `nvme1n1`).
+Desktop config: private repo `slunkster/dotfiles` (wallust-themed Hyprland).
+
+| | |
+|---|---|
+| Tailscale | `slunk-linux` <LINUX_TAILSCALE_IP> |
+| User | `siimalve`, timezone Europe/Tallinn; packages via `pacman`/`paru` (sudo = Siim types the password) |
+| Hermes | v0.23.1, `~/.hermes`, launcher `~/.local/bin/hermes`; TUI only, **no gateway, no Telegram** |
+| Model | main + sub-agents `claude-opus-5-5` (Anthropic); vision/images/TTS/STT → OpenAI; titles DeepSeek Flash |
+| Skills | `~/Hermes/hermes-skills`, synced by systemd user timer `hermes-skills-sync.timer` (15 min); https remote + `gh auth setup-git` |
+| Memory | Honcho → VPS (`~/.hermes/honcho.json`, copied from VPS without `pinUserPeer`) |
+| Todoist | MCP with personal API token (`TODOIST_API_TOKEN` in `.env`) |
+| SSH out | `ssh vps` with `~/.ssh/id_ed25519` (key "cachyos-linux (Hermes)" in VPS `authorized_keys`) |
+| SSH in | `ssh linux` **from the VPS only**: sshd + `AllowUsers siimalve@<VPS_TAILSCALE_IP>`, no passwords/root, ufw allows 22 only on `tailscale0` from <VPS_TAILSCALE_IP>; VPS key `~/.ssh/linux_access` in `~/.ssh/authorized_keys` with `from="<VPS_TAILSCALE_IP>"`. Set up with `infra/linux/setup-ssh-from-vps.sh` (sudo). |
+| Must be | booted into Linux and awake (not suspended) for `ssh linux` |
+| Games | Steam `~/.local/share/Steam`, ETS2 native Linux build (skill `ets2-mod-install`) |
+| Setup | `infra/linux/setup-linux.sh` (Tailscale, Hermes install, sync timer), then `.env` keys (Anthropic, OpenAI, DeepSeek, Todoist) + config copied from the VPS, then `setup-ssh-from-vps.sh` |
+| Not here | Google workspace, Apple apps, DaVinci — use the VPS / Mac / Windows boot |
 
 ### iPhone
 - **Telegram** → VPS bot (works).
@@ -161,7 +192,7 @@ Remote option: the Desktop app can also use the VPS — Settings → Gateways �
 
 ## 3. Network, SSH & firewall
 
-**Tailscale** account: siim.alve@ (Google login, 2FA). All private traffic goes over it.
+**Tailscale** account: you@ (Google login, 2FA). All private traffic goes over it.
 
 **SSH aliases**
 | From | Alias | Target | Key |
@@ -169,16 +200,21 @@ Remote option: the Desktop app can also use the VPS — Settings → Gateways �
 | Mac | `vps` | siim@<VPS_PUBLIC_IP> | `~/.ssh/id_ed25519` (passphrase in macOS keychain) |
 | VPS | `mac` | siimalve@<MAC_TAILSCALE_IP> | `~/.ssh/mac_access` (only valid from VPS Tailscale IP) |
 | VPS | `github-skills` | git@github.com | `~/.ssh/hermes_skills_deploy` (deploy key, this repo only, write) |
-| VPS | `pc` | "Siim Alve"@<PC_TAILSCALE_IP> | `~/.ssh/pc_access` (only valid from VPS Tailscale IP) |
-| PC | `github-skills` | git@github.com | `~\.ssh\hermes_skills_deploy` (own deploy key "slunkpc (Windows Hermes)", write) |
-| PC | — | `ssh siim@<VPS_TAILSCALE_IP>` (or the public IP) | `~\.ssh\id_ed25519` |
+| VPS | `linux` | siimalve@<LINUX_TAILSCALE_IP> | `~/.ssh/linux_access` (only valid from VPS Tailscale IP) |
+| VPS | `pc` | "Siim Alve"@<PC_TAILSCALE_IP> | `~/.ssh/pc_access` (only valid from VPS Tailscale IP; Windows boot only) |
+| Linux | `vps` | siim@<VPS_TAILSCALE_IP> | `~/.ssh/id_ed25519` |
+| Windows | `github-skills` | git@github.com | `~\.ssh\hermes_skills_deploy` (own deploy key "slunkpc (Windows Hermes)", write) |
+| Windows | — | `ssh siim@<VPS_TAILSCALE_IP>` (or the public IP) | `~\.ssh\id_ed25519` |
 
 **VPS firewall (ufw):** deny incoming except `OpenSSH`, plus on `tailscale0` only: `9119/tcp` (dashboard),
 `8642/tcp` (API server for the iPhone), `8765/tcp` (SNK web preview).
 Docker publishes Honcho `:8000` only on 127.0.0.1 and <VPS_TAILSCALE_IP> (verified unreachable from
 the public IP). Postgres/Redis are not published at all. fail2ban active.
 
-**SSH hardening:** `/etc/ssh/sshd_config.d/00-hardening.conf` — no passwords, no keyboard-interactive, no root.
+**Linux desktop firewall (ufw):** default deny incoming; only `22/tcp` on `tailscale0` from <VPS_TAILSCALE_IP>.
+
+**SSH hardening:** VPS `/etc/ssh/sshd_config.d/00-hardening.conf`, Linux `/etc/ssh/sshd_config.d/00-hermes-hardening.conf`
+— no passwords, no keyboard-interactive, no root.
 
 ---
 
@@ -187,8 +223,8 @@ the public IP). Postgres/Redis are not published at all. fail2ban active.
 ### VPS (`~/.hermes/config.yaml`, change only with `hermes config set`)
 | Setting | Value |
 |---|---|
-| Main model | `claude-opus-5-5` (Anthropic, OAuth token) |
-| Title generation | DeepSeek `deepseek-flash` |
+| Main model | `claude-opus-5-5` (Anthropic, OAuth token); sub-agents and auxiliary tasks also Anthropic Opus (checked 16 Nov 2026) |
+| Title generation | Anthropic (was DeepSeek `deepseek-flash`) |
 | TTS / image gen | OpenAI |
 | Web search | brave-free |
 | Terminal backend | local, cwd `/home/siim/Hermes` |
@@ -208,7 +244,12 @@ agent understands that. Switch to OpenAI if speed matters more than accuracy:
 Same model, `memory.provider honcho` (→ VPS Honcho), `skills.create_dir
 /Users/siimalve/Hermes/hermes-skills/skills`, memory limits 5000/2500, `terminal.cwd /Users/siimalve/Hermes`.
 
-### Windows PC
+### Linux desktop
+Main + sub-agents `claude-opus-5-5` (Anthropic); vision, images, TTS, STT → OpenAI; titles DeepSeek Flash;
+`memory.provider honcho`, `skills.create_dir /home/siimalve/Hermes/hermes-skills/skills`, `terminal.cwd ~/Hermes`,
+memory limits 5000/2500. No gateway, no Telegram.
+
+### Windows (legacy)
 Same model (`claude-opus-5-5`), `memory.provider honcho` (→ VPS Honcho, `%LOCALAPPDATA%\hermes\honcho.json`),
 `skills.create_dir C:/Users/Siim Alve/hermes-skills/skills`, memory limits 5000/2500, `timezone Europe/Tallinn`,
 `delegation.provider deepseek` / `delegation.model deepseek-flash`. No Telegram.
@@ -232,18 +273,19 @@ Basic auth: user `siim`, password set with `ssh -t vps '~/bin/set-dashboard-pass
 |---|---|---|
 | Telegram | bot token in VPS `.env`, allowed user <TELEGRAM_USER_ID> | VPS only (Mac + PC bots disabled) |
 | Gmail, Drive, Docs, Sheets, Google Calendar (incl. "Moodle" iCal, ÕIS2 timetable, Töö - SNK) | `google-workspace` skill, token `~/.hermes/google_token.json` (copied from Mac) | VPS + Mac |
-| Todoist | MCP, **separate OAuth login per machine** (sharing one refresh token would log the other out) | VPS + Mac |
+| Todoist | MCP `https://ai.todoist.net/mcp` with a personal **API token** (`Authorization: Bearer ${env:TODOIST_API_TOKEN}`) since 4 Nov 2026 — OAuth dropped (rotating refresh tokens broke with several machines). The startup warning "TODOIST_API_TOKEN is not set" is cosmetic. | VPS + Linux (Mac: not re-checked) |
 | Outlook work `work@example.org`, `student@ut.ee` | Mail.app via JXA (`~/Hermes/paevaulevaade/outlook_mail.js`) | Mac; VPS via `ssh mac` when awake |
 | Apple Notes / Reminders / Calendar.app | `osascript -l JavaScript` | Mac; VPS via `ssh mac` |
 | Exchange/UT calendars | `ekcal` (EventKit) on Mac — **fails over SSH** (no TCC grant); work events are in Google "Töö - SNK" anyway | Mac only |
 | Weather | Open-Meteo (Treski/Värska, Tartu, Viljandi) + Ilmateenistus warnings XML | VPS briefing |
-| DaVinci Resolve | MCP bridge (`resolve_mcp_bridge.py`) | PC; VPS via `ssh pc` when awake |
-| PC programs / files / video projects | PowerShell | PC; VPS via `ssh pc` when awake |
+| Desktop files, programs, games | shell | Linux; VPS via `ssh linux` when booted into Linux |
+| DaVinci Resolve | MCP bridge (`resolve_mcp_bridge.py`) | Windows boot; VPS via `ssh pc` |
+| Old Windows video projects | PowerShell | Windows boot; VPS via `ssh pc` |
 | LLM APIs | Anthropic (main), OpenAI (TTS, images, Honcho embeddings), DeepSeek (titles, Honcho analysis, sub-agents) | all |
 
 Useful IDs:
-- Calendar "Töö - SNK": `<WORK_CALENDAR_ID>@group.calendar.google.com`; personal = `you@gmail.com`
-- Google Doc "Hermes – mõtted ja ideed" (quick-capture ideas): `<SHEET_ID>`
+- Calendar "Töö - SNK": `<WORK_CALENDAR_ID>`; personal = `you@gmail.com`
+- Google Doc "Hermes – mõtted ja ideed" (quick-capture ideas): `<DOC_ID>`
   (the older doc "Mõtted" is a grant draft — never write there)
 - Drive folder "Hermes VPS backups": `<DRIVE_FOLDER_ID>`
 - Todoist projects: Inbox, Töö, HUUB, MTÜ, Välk, Ülikool; label `ostud` = shopping
@@ -252,12 +294,12 @@ Useful IDs:
 
 ## 6. Memory
 
-Two layers, active on all three machines:
+Two layers, active on every machine:
 
 1. **Built-in** `~/.hermes/memories/MEMORY.md` (agent notes) + `USER.md` (about Siim) — injected into
    every prompt, **per machine, not synced**. VPS version was written for Linux (Mac-only tips removed).
 2. **Honcho** (self-hosted on VPS, `~/honcho`, upstream plastic-labs/honcho) — stores conversations from
-   both machines in workspace `hermes`, user peer `siim`, AI peer `hermes`; builds a profile and facts.
+   every machine in workspace `hermes`, user peer `siim`, AI peer `hermes`; builds a profile and facts.
    - API `http://<VPS_TAILSCALE_IP>:8000`, auth on (JWT in `~/.config/honcho-jwt` on VPS, copied into each
      machine's `~/.hermes/honcho.json`). VPS `honcho.json` has `pinUserPeer: true` (Telegram user → `siim`).
    - Analysis model: **DeepSeek `deepseek-flash`** for deriver, summaries, dreams and all dialectic
@@ -275,13 +317,14 @@ Sessions/chat history (`state.db`) are per machine and not shared.
 
 ## 7. Skills & sync
 
-- Repo: **github.com/slunkster/hermes-skills** (private). Clones: Mac `~/Hermes/hermes-skills`, VPS `~/hermes-skills`,
-  PC `C:\Users\Siim Alve\hermes-skills`.
+- Repo: **github.com/slunkster/hermes-skills** (private). Clones: Linux + Mac `~/Hermes/hermes-skills`, VPS `~/hermes-skills`,
+  Windows `C:\Users\Siim Alve\hermes-skills`.
 - Only *personal* skills live here; the ~58 bundled Hermes skills come with each install.
 - `skills.create_dir` points here on all machines → skills Hermes creates/patches land in the repo.
 - `scripts/sync.sh` = `git add -A` → commit → `pull --rebase --autostash` → push. Runs every 15 min
-  (Mac launchd `ee.siim.hermes-skills-sync`, VPS crontab). Windows: `scripts/sync.ps1`, Scheduled Task
-  `HermesSkillsSync` (every 15 min, hidden via `conhost.exe --headless`).
+  (Linux systemd user timer `hermes-skills-sync.timer`, log `.sync.log`; Mac launchd `ee.siim.hermes-skills-sync`;
+  VPS crontab). Windows: `scripts/sync.ps1`, Scheduled Task `HermesSkillsSync` (every 15 min, hidden via
+  `conhost.exe --headless`) — runs only while booted into Windows, so expect a catch-up pull/rebase then.
 - 4 Nov 2026: the PC's 11 own skills were moved in (davinci-resolve-editing, concert-multicam-edit,
   estonian-e-invoicing, windows-python-app-packaging, academic-coursework, car-buying-research,
   document-harmonization, ets2-mod-install, personal-bank-balance-access, source-consistency-audit,
@@ -289,7 +332,8 @@ Sessions/chat history (`state.db`) are per machine and not shared.
 - The old local copies were removed from `~/.hermes/skills` on the Mac (they would shadow the repo).
   Backup of the pre-repo state: Mac `~/Hermes/backups/hermes-skills-before-repo-20261028.tgz`.
 - `platforms: [macos]` skills (ios-app-development, macos-app-without-xcode, macos-terminal-glyph-diagnosis) are hidden on the VPS by design;
-  `platforms: [linux, macos]` (hermes-vps-hosting) is hidden on Windows.
+  `platforms: [linux, macos]` (hermes-vps-hosting) is hidden on Windows (visible on the Linux desktop).
+  `windows-python-app-packaging` is Windows-specific by content.
 
 Skills added during the setup:
 | Skill | What |
@@ -306,7 +350,7 @@ Skills added during the setup:
 | When | Where | What | Delivers |
 |---|---|---|---|
 | every 10 min | VPS crontab | `~/bin/hc-ping.sh` → healthchecks.io (fail ping if gateway inactive) | healthchecks.io |
-| every 15 min | VPS crontab + Mac launchd + PC Scheduled Task | skills git sync | — |
+| every 15 min | VPS crontab + Linux systemd timer + Mac launchd + Windows Scheduled Task | skills git sync | — |
 | 03:30 | VPS crontab | `~/bin/hermes-backup.sh` encrypted backup → Drive, keeps 14 | log `~/Hermes/backups/backup.log` |
 | ~04:00–04:10 | VPS systemd timer | `apt-daily-upgrade` security updates (override in `/etc/systemd/system/apt-daily-upgrade.timer.d/`) | — |
 | 04:30 if needed | unattended-upgrades | automatic reboot (`/etc/apt/apt.conf.d/52hermes-auto-reboot`) | — |
@@ -379,6 +423,8 @@ Ping URL is in `~/.config/hc-ping-url` on the VPS (not in this repo).
 - **Hermes** (manual, when the 09:00 check says so):
   - VPS: `ssh vps 'bash -lc "hermes update"'` then `ssh vps 'systemctl --user restart hermes-gateway'`
   - Mac: `hermes update` then `hermes gateway restart` (closes the current chat)
+  - Linux: `hermes update` (no gateway to restart); system: `paru -Syu`
+  - Windows: only when booted into it — close `hermes --tui` first, then `hermes update`
 - **Ubuntu security updates:** automatic ~04:00, reboot at 04:30 only when required. Reboot tested 29.10.2026: everything returns in ~1 min.
 - **Honcho** (occasionally): `cd ~/honcho && git pull && sg docker -c "docker compose up -d --build"` — check the `.env` template for new variables first.
 - **Contabo snapshot** after any bigger change.
@@ -393,18 +439,20 @@ Never commit any of these. All are in the nightly encrypted backup unless noted.
 
 | Secret | Location |
 |---|---|
-| Anthropic token, OpenAI, DeepSeek keys | `~/.hermes/.env` (VPS + Mac) |
+| Anthropic token, OpenAI, DeepSeek keys | `~/.hermes/.env` (VPS, Linux, Mac) |
+| Todoist API token | `TODOIST_API_TOKEN` in `~/.hermes/.env` (VPS, Linux) |
 | Telegram bot token | VPS `~/.hermes/.env` (Mac + PC copies commented out) |
 | API server key (iPhone) | VPS `.env` `API_SERVER_KEY` + `~/Hermes/iphone/api-key.txt`; also inside `Jarvis-unsigned.shortcut` and the phone's shortcut |
-| Google OAuth token + client secret | `~/.hermes/google_token.json`, `google_client_secret.json` (both machines) |
-| Todoist OAuth | `~/.hermes/mcp-tokens/todoist*.json` (separate per machine) |
+| Google OAuth token + client secret | `~/.hermes/google_token.json`, `google_client_secret.json` (VPS + Mac) |
+| Todoist OAuth (old) | `~/.hermes/mcp-tokens/` (VPS old copy in `mcp-tokens/old-oauth/`) |
 | Dashboard basic-auth | VPS `.env` `HERMES_DASHBOARD_BASIC_AUTH_*` |
 | Honcho JWT secret + LLM keys | VPS `~/honcho/.env` |
 | Honcho client token | VPS `~/.config/honcho-jwt`; `apiKey` in each `~/.hermes/honcho.json` |
 | healthchecks ping URL | VPS `~/.config/hc-ping-url` |
-| GitHub | Mac: `gh` login (keyring, account slunkster); VPS + PC: own deploy keys `~/.ssh/hermes_skills_deploy` |
-| SSH keys | Mac `~/.ssh/id_ed25519` (passphrase in keychain); PC `~\.ssh\id_ed25519`; VPS `~/.ssh/mac_access`, `~/.ssh/pc_access` |
-| PC secrets | `%LOCALAPPDATA%\hermes\.env`, `honcho.json`, `~\.enablebanking\` — **not in the nightly backup** |
+| GitHub | Mac + Linux: `gh` login (keyring, account slunkster; Linux uses https + `gh auth setup-git`); VPS + Windows: own deploy keys `~/.ssh/hermes_skills_deploy` |
+| SSH keys | Mac `~/.ssh/id_ed25519` (passphrase in keychain); Linux `~/.ssh/id_ed25519`; Windows `~\.ssh\id_ed25519`; VPS `~/.ssh/mac_access`, `~/.ssh/linux_access`, `~/.ssh/pc_access` |
+| Linux secrets | `~/.hermes/.env`, `honcho.json`, `auth.json` — **not in the nightly backup** |
+| Windows secrets | `%LOCALAPPDATA%\hermes\.env`, `honcho.json`, `~\.enablebanking\` — **not in the nightly backup** |
 | **Backup decryption key** | **Mac `~/.config/hermes-backup/age-key.txt` + Bitwarden — NOT in any backup** |
 
 Accounts with 2FA: Contabo, GitHub, Google, Tailscale, Bitwarden.
@@ -424,11 +472,12 @@ Accounts with 2FA: Contabo, GitHub, Google, Tailscale, Bitwarden.
 | Memory slow | expected for `honcho_reasoning` (~6 s, DeepSeek); search is ~0.3 s. Main latency is Opus itself. |
 | Voice messages slow | local model ≈ 2–5× clip length. Option: switch to OpenAI (section 4) — less accurate. |
 | Backup alert | `ssh vps 'tail -20 ~/Hermes/backups/backup.log'`; run `~/bin/hermes-backup.sh` by hand. |
-| Skills not syncing | `~/Hermes/hermes-skills/.sync.log` (Mac), `~/hermes-skills/.sync.log` (VPS); resolve git conflicts manually, then `sh scripts/sync.sh`. |
-| Windows app can't connect | URL must be exactly `http://<VPS_TAILSCALE_IP>:9119`; Tailscale running on the PC; `ssh vps 'systemctl --user status hermes-dashboard'`. |
-| `ssh pc` times out | PC asleep/off, or Tailscale not running on it. `ssh vps 'ssh pc hostname'`. |
+| Skills not syncing | `~/Hermes/hermes-skills/.sync.log` (Linux, Mac; Linux: `systemctl --user status hermes-skills-sync.timer`), `~/hermes-skills/.sync.log` (VPS); resolve git conflicts manually, then `sh scripts/sync.sh`. |
+| Desktop app can't connect to the VPS | URL must be exactly `http://<VPS_TAILSCALE_IP>:9119`; Tailscale running locally; `ssh vps 'systemctl --user status hermes-dashboard'`. |
+| `ssh linux` times out | Desktop is off/suspended, **booted into Windows**, or Tailscale/sshd not running: `systemctl status sshd tailscaled`, `sudo ufw status`. Test: `ssh vps 'ssh linux hostname'`. |
+| `ssh pc` times out | Normal when the desktop runs Linux (dual boot). Otherwise Windows asleep/off or Tailscale not running. `ssh vps 'ssh pc hostname'`. |
 | Complex commands over `ssh pc` break | Quoting through ssh → PowerShell is fragile: write a `.ps1`, `scp` it to `AppData/Local/Temp/`, run `powershell -NoProfile -ExecutionPolicy Bypass -File …`. |
-| PC: every `hermes` command says "completing source-update dependencies" | An update couldn't replace `hermes.exe` because `hermes --tui` was open. Close the TUI, run `hermes update` again. |
+| Windows: every `hermes` command says "completing source-update dependencies" | An update couldn't replace `hermes.exe` because `hermes --tui` was open. Close the TUI, run `hermes update` again. |
 | Siri: "something went wrong" | Tailscale off on the phone (VPN On Demand), or the question took too long (use the polling shortcut / Telegram). Check the VPS log: `grep api_server ~/.hermes/logs/gateway.log \| tail`. |
 | Agent "can't restart the gateway" | By design — run the restart command yourself in a normal Terminal. |
 | Disk filling | `ssh vps 'df -h; du -sh ~/.hermes/* ~/Hermes/* | sort -h | tail'`; Docker: `sg docker -c "docker system df"`. |
@@ -453,13 +502,13 @@ No API spending limits are set (deliberate choice).
 ## 15. Known limitations
 
 - Mac-dependent features (Outlook/UT mail, Apple Notes, Reminders, `ekcal` calendars, Mac files) only work while the Mac is awake.
-- PC-dependent features (`ssh pc`: DaVinci Resolve, local files, video projects) only work while the PC is awake.
+- The desktop is dual boot: `ssh linux` (main) works only while it runs Linux, `ssh pc` (DaVinci, old Windows projects) only while it runs Windows — never both.
 - **Siri shortcut is not working yet** (see section 2, iPhone). Siri runs have no chat history; long tasks belong in Telegram.
-- PC Hermes state (`%LOCALAPPDATA%\hermes`) is not in the nightly backup — skills are in git, memory in Honcho.
+- Linux (`~/.hermes`) and Windows (`%LOCALAPPDATA%\hermes`) Hermes state is not in the nightly backup — skills are in git, memory in Honcho.
 - No road-condition data (Tark Tee has no open API) — ice warnings come from weather + Ilmateenistus.
 - Built-in memory files and chat history are per machine; only Honcho is shared.
 - Honcho starts nearly empty; it gets useful after a week or two of conversations.
-- Dashboard session writes from the Windows app may be refused while the Telegram gateway owns the profile (chatting works).
+- Dashboard session writes from the desktop app may be refused while the Telegram gateway owns the profile (chatting works).
 - The 09:00 check runs on the VPS itself — total VPS failure is covered by healthchecks.io instead.
 
 ---
@@ -468,8 +517,8 @@ No API spending limits are set (deliberate choice).
 
 ```
 README.md                         this document
-scripts/sync.sh                   skills git sync (Mac + VPS)
-scripts/sync.ps1                  skills git sync (Windows PC, Scheduled Task HermesSkillsSync)
+scripts/sync.sh                   skills git sync (Linux, Mac, VPS)
+scripts/sync.ps1                  skills git sync (Windows boot, Scheduled Task HermesSkillsSync)
 skills/                           personal Hermes skills (see section 7)
 infra/vps/bin/                    hermes-backup.sh, hc-ping.sh, set-dashboard-password  (→ VPS ~/bin)
 infra/vps/hermes-scripts/         homme.sh, healthcheck.sh                             (→ VPS ~/.hermes/scripts)
@@ -478,7 +527,9 @@ infra/vps/systemd-user/           hermes-dashboard.service                      
 infra/vps/honcho/                 docker-compose.yml, env-nonsecret.txt                (→ VPS ~/honcho)
 infra/vps/system/                 crontab + apt/ssh/timer config snapshot
 infra/mac/                        ee.siim.hermes-skills-sync.plist                     (→ Mac ~/Library/LaunchAgents)
-infra/windows/                    setup-ssh.ps1 (admin: OpenSSH Server for `ssh pc`)   (run once on the PC)
+infra/linux/                      setup-linux.sh (Tailscale, Hermes, sync timer)       (run once on the Linux desktop)
+                                  setup-ssh-from-vps.sh (sudo: sshd + ufw for `ssh linux`)
+infra/windows/                    setup-ssh.ps1 (admin: OpenSSH Server for `ssh pc`)   (run once in the Windows boot)
 infra/iphone/                     siri-shortcut.md (guide, no key)
 ```
 `infra/` holds copies for reference/restore — the live files are on the machines. After changing a
@@ -497,6 +548,14 @@ directly on VPS → dashboard for the Windows app → nightly encrypted backups 
 limits raised + self-hosted Honcho shared by both machines, analysis on DeepSeek Flash → update
 notices → `telegram-to-drive` → `quick-capture` + weather/ice in briefing → healthchecks.io →
 reboot tested, automatic security reboots at 04:30 → this README.
+
+**12 Nov 2026 — Linux desktop**
+CachyOS desktop added as a fourth machine: own local Hermes (Opus 5.5 main + sub-agents, OpenAI multimodal), shared skills + Honcho, `ssh vps`.
+
+**16 Nov 2026 — Linux becomes the main computer**
+The CachyOS install (dual boot with Windows on the same desktop) replaced Windows for nearly everything;
+Windows kept as secondary for Windows-only programs (DaVinci). Added `ssh linux` from the VPS (sshd +
+ufw, VPS-only key). README, memories and skills updated; VPS confirmed back on `claude-opus-5-5`.
 
 **3–4 Nov 2026 — Windows PC + iPhone**
 VPS API server (`:8642`, Tailscale only) for an iPhone Siri shortcut → shortcut v1 (blocking) too slow

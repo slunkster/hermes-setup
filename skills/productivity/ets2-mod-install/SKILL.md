@@ -12,11 +12,19 @@ or TrafficManiac traffic/cargo packs.
 
 ## Destination
 
+**The main gaming PC is now the Linux desktop (CachyOS, where Hermes runs).**
+ETS2 runs there as the **native Linux build** (`bin/linux_x64`, no Proton
+compatdata for 227300). Steam library: `~/.local/share/Steam`. Mod folder:
+
 ```
-C:\Users\Siim Alve\Documents\Euro Truck Simulator 2\mod
+~/.local/share/Euro Truck Simulator 2/mod
 ```
 
-All mods for this user go there. Do not invent a folder in Documents.
+The game creates this folder on first launch; `mkdir -p` it if it is missing.
+No SSH needed, so download straight into it.
+
+The old Windows PC (`C:\Users\Siim Alve\Documents\Euro Truck Simulator 2\mod`,
+via `ssh vps 'ssh pc'`) is legacy. Use it only if the user asks for it.
 
 ## Verify DLC requirements before anything else
 
@@ -35,7 +43,26 @@ from Steam's own records; never from a filename guess:
 - Locate the install dir via `steamapps/libraryfolders.vdf` (`"path"` entries),
   then `steamapps/common/Euro Truck Simulator 2`.
 
-## Source and download chain (traffic/cargo packs)
+## Preferred source: ets2.lt (user's choice) — curl only, no browser
+
+- ets2.lt HTML is Cloudflare-gated (curl 403; browser Turnstile does not pass
+  even with a click). **Use the open WP REST API instead:**
+  `https://ets2.lt/wp-json/wp/v2/posts?search=<author>&per_page=100&page=N&_fields=id,date,link,title,content`
+  Parse the title `<Pack> by <Author> vX.Y.Z`, keep the highest version per pack,
+  pull the `modsfire.com/<15-char id>` links from `content.rendered`.
+  The post body also states game compatibility (e.g. `1.62.x`).
+- **modsfire.com chain (all curl, same cookie jar, full Chrome UA — a bare
+  `Mozilla/5.0` UA gets 403):**
+  1. GET `https://modsfire.com/<id>`; grab `/download/<id>/<step>` from it.
+  2. GET that step URL with Referer = step-1 page. **Sleep ~4 s** (countdown;
+     skipping it gives 403).
+  3. GET `https://modsfire.com/d/<id>` (Referer = step URL, no redirect follow)
+     → 302 to `s4.modsfire.com/d.php?...` → 302 to a presigned Cloudflare R2
+     URL. **It expires after 600 s**, so download immediately.
+  4. Do NOT send Range to `/d/` (403). Range works on the final R2 URL:
+     `curl -r 0-0 -D -` → `Content-Range: bytes 0-0/<size>` for verification.
+
+## Older source and download chain (ets3mods / sharemods)
 
 1. **ets3mods.com** mod pages read fine with plain `curl` (no Cloudflare). Get the
    pack list from `https://ets3mods.com/?s=<author>`; `/tag/<author>/` returns 404.
