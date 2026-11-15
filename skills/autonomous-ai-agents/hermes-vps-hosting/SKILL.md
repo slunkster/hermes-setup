@@ -103,6 +103,7 @@ Alternative without a third-party service: reverse tunnel — the Mac runs autos
 
 - Bootstrap: Tailscale, Hermes install, a systemd **user** timer running `scripts/sync.sh` every 15 min (template `infra/linux/setup-linux.sh` in the skills repo); copy `.env` keys and `honcho.json` from the VPS, dropping `pinUserPeer` (that is only for the Telegram gateway).
 - Let the VPS in: generate the key ON the VPS (`~/.ssh/linux_access`, `Host linux` alias), append the pubkey yourself to `~/.ssh/authorized_keys` with `from="<VPS ts ip>"`, and give the user ONE sudo script (template `infra/linux/setup-ssh-from-vps.sh`): sshd drop-in with no passwords/root and `AllowUsers <user>@<VPS ts ip>`, `sshd -t`, `ufw allow in on tailscale0 from <VPS ts ip> to any port 22 proto tcp`, `systemctl enable --now sshd`. Do NOT use `ListenAddress <tailscale ip>`, because sshd fails to start when it boots before tailscaled.
+- Fresh Arch/CachyOS has no SSH host keys until sshd has run once, so `sshd -t` dies with "no hostkeys available". Run `ssh-keygen -A` first.
 - Arch/CachyOS ships ufw active by default, so the rule matters. Verify from the VPS with `ssh linux hostname`.
 
 ## Wire it into Hermes — pick one pattern

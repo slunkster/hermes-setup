@@ -59,6 +59,7 @@ When the user wants to show the setup to someone, don't open the private repo. B
 3. Replace each real value in Python with a fixed map to `<PLACEHOLDERS>`, e.g. `<VPS_PUBLIC_IP>`, `<VPS_TAILSCALE_IP>`, `you@gmail.com`, `<SHEET_ID>`. Third-party contacts in skill references count too. Re-run the scan until only localhost and example addresses remain, then add a one-line "sanitized public copy" note at the top of the README.
 4. Commit with the GitHub noreply author (`$(gh api user --jq .id)+<login>@users.noreply.github.com`), because commit metadata is public too. Then `gh repo create <owner>/<name> --public --source . --push`.
 5. Verify `gh repo view --json visibility` and an anonymous `curl` returning 200 before sending the link. Tell the user the copy does not update itself.
+6. Later refreshes: this user's copy is `slunkster/hermes-setup`, and it is rebuilt with `python3 ~/Hermes/hermes-setup-public/sanitize.py <fresh clone>` (Linux desktop). The script wipes the clone except `.git`, copies the tracked private files, applies the value map and prints a scan. It holds the real values, so it must stay outside both repos. When a new IP, ID or contact appears, extend its MAP. Hand-made copies missed phone numbers and Todoist project IDs, so trust the scan rather than memory. Commit with the noreply author on every refresh, because one older commit carried the real gmail.
 
 ## Files sent in chat → Google Drive
 

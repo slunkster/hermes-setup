@@ -11,6 +11,7 @@ KbdInteractiveAuthentication no
 PermitRootLogin no
 AllowUsers ${USER_NAME}@${VPS_IP}
 CONF
+ssh-keygen -A   # fresh Arch/CachyOS has no host keys until sshd.service first runs; sshd -t fails without them
 sshd -t
 ufw allow in on tailscale0 from ${VPS_IP} to any port 22 proto tcp comment 'Hermes VPS ssh'
 systemctl enable --now sshd
